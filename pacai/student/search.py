@@ -2,6 +2,11 @@
 In this file, you will implement generic search algorithms which are called by Pacman agents.
 """
 
+from pacai.util.stack import Stack
+from pacai.util.queue import Queue
+from pacai.util.priorityQueue import PriorityQueue
+from pacai.core.search.heuristic import manhattan
+
 def depthFirstSearch(problem):
     """
     Search the deepest nodes in the search tree first [p 85].
@@ -19,7 +24,47 @@ def depthFirstSearch(problem):
     """
 
     # *** Your Code Here ***
-    raise NotImplementedError()
+    
+    s = Stack()
+    s.push(problem.startingState()) 
+    visited = set() 
+    parents = {problem.startingState(): None}
+
+    print("Start: %s" % str(problem.startingState()))
+    print("Is the start a goal?: %s" % problem.isGoal(problem.startingState()))
+
+    
+    if problem.isGoal(problem.startingState()):
+        return []
+
+    
+    while not s.isEmpty():
+        node = s.pop() 
+
+        
+        if problem.isGoal(node):
+            print("Goal found!")
+            
+            path = []
+            while node != problem.startingState():
+                parent, action = parents[node]
+                path.insert(0, action)
+                node = parent
+            return path
+
+        if node not in visited:
+            visited.add(node) 
+            print(f"Visiting node: {node}")
+            successors = problem.successorStates(node)
+            print(f"Successors of {node}: {successors}")
+
+            for successor, action, _ in successors:
+                if successor not in visited:
+                    s.push(successor)
+                    parents[successor] = (node,action)
+
+    return "Failure" 
+
 
 def breadthFirstSearch(problem):
     """
@@ -27,7 +72,45 @@ def breadthFirstSearch(problem):
     """
 
     # *** Your Code Here ***
-    raise NotImplementedError()
+    s = Queue()
+    s.push(problem.startingState()) 
+    visited = set() 
+    parents = {problem.startingState(): None}
+
+    print("Start: %s" % str(problem.startingState()))
+    print("Is the start a goal?: %s" % problem.isGoal(problem.startingState()))
+
+    
+    if problem.isGoal(problem.startingState()):
+        return []
+
+    
+    while not s.isEmpty():
+        node = s.pop() 
+
+        
+        if problem.isGoal(node):
+            print("Goal found!")
+            
+            path = []
+            while node != problem.startingState():
+                parent, action = parents[node]
+                path.insert(0, action)
+                node = parent
+            return path
+
+        if node not in visited:
+            visited.add(node) 
+            print(f"Visiting node: {node}")
+            successors = problem.successorStates(node)
+            print(f"Successors of {node}: {successors}")
+
+            for successor, action, _ in successors:
+                if successor not in visited:
+                    s.push(successor)
+                    parents[successor] = (node,action)
+
+    return "Failure" 
 
 def uniformCostSearch(problem):
     """
@@ -35,7 +118,49 @@ def uniformCostSearch(problem):
     """
 
     # *** Your Code Here ***
-    raise NotImplementedError()
+    s = PriorityQueue()
+    s.push(problem.startingState(), 0) 
+    visited = set() 
+    parents = {problem.startingState(): None}
+    path_cost = {problem.startingState(): 0}
+
+    print("Start: %s" % str(problem.startingState()))
+    print("Is the start a goal?: %s" % problem.isGoal(problem.startingState()))
+
+    
+    if problem.isGoal(problem.startingState()):
+        return []
+
+    
+    while not s.isEmpty():
+        node = s.pop() 
+
+        
+        if problem.isGoal(node):
+            print("Goal found!")
+            
+            path = []
+            while node != problem.startingState():
+                parent, action = parents[node]
+                path.insert(0, action)
+                node = parent
+            return path
+
+        if node not in visited:
+            visited.add(node) 
+            print(f"Visiting node: {node}")
+            successors = problem.successorStates(node)
+            print(f"Successors of {node}: {successors}")
+
+            for successor, action, cost in successors:
+                new_cost = path_cost[node] + cost
+                if successor not in visited or new_cost < path_cost.get(successor, float('inf')):
+                    s.push(successor, new_cost)
+                    path_cost[successor] = new_cost
+                    parents[successor] = (node,action)
+
+    return "Failure" 
+    
 
 def aStarSearch(problem, heuristic):
     """
@@ -43,4 +168,47 @@ def aStarSearch(problem, heuristic):
     """
 
     # *** Your Code Here ***
-    raise NotImplementedError()
+    s = PriorityQueue()
+    s.push(problem.startingState(), 0) 
+    visited = set() 
+    parents = {problem.startingState(): None}
+    path_cost = {problem.startingState(): 0}
+
+    print("Start: %s" % str(problem.startingState()))
+    print("Is the start a goal?: %s" % problem.isGoal(problem.startingState()))
+
+    
+    if problem.isGoal(problem.startingState()):
+        return []
+
+    
+    while not s.isEmpty():
+        node = s.pop() 
+
+        
+        if problem.isGoal(node):
+            print("Goal found!")
+            
+            path = []
+            while node != problem.startingState():
+                parent, action = parents[node]
+                path.insert(0, action)
+                node = parent
+            return path
+
+        if node not in visited:
+            visited.add(node) 
+            print(f"Visiting node: {node}")
+            successors = problem.successorStates(node)
+            print(f"Successors of {node}: {successors}")
+
+            for successor, action, cost in successors:
+                new_cost = path_cost[node] + cost
+                heuristic_cost = manhattan(successor, problem)
+                weight = new_cost + heuristic_cost
+                if successor not in visited or new_cost < path_cost.get(successor, float('inf')):                    
+                    s.push(successor, weight)
+                    path_cost[successor] = new_cost
+                    parents[successor] = (node,action)
+
+    return "Failure" 
